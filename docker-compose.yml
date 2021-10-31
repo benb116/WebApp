@@ -1,0 +1,95 @@
+version: '3'
+
+services:
+    # Serve static webpages and proxy to APIs
+    # CRA dev server in dev and nginx in production
+    webserver:
+        build:
+            context: .
+            dockerfile: ./client/Dockerfile
+            target: ${NODE_ENV} # Determine dev or prod
+        container_name: webserver
+        restart: always
+        ports:
+            - 80:${INNER_PORT} # Expose ports
+            - 443:443
+        networks:
+            - app-network
+        depends_on: # Don't want to proxy requests until the servers are up 
+            - api
+            - live
+        volumes:
+            - /etc/letsencrypt:/etc/letsencrypt # ssl certs
+            - /home/node/app/node_modules
+
+    api:
+        build:
+            context: .
+            dockerfile: ./server/Dockerfile
+        container_name: api
+        env_file: .env
+        environment:
+            - DB_HOST=db
+            - DB_PORT=5432
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+        networks:
+            - app-network
+        depends_on:
+            - db
+            - redis
+        command: 
+            node workers/api.worker.js # nodemon for restart in debugging
+        volumes:
+            - /home/node/app/node_modules
+            - ./server/logs/api:/home/node/app/logs
+    
+    live:
+        build:
+            context: .
+            dockerfile: ./server/Dockerfile
+        container_name: live
+        env_file: .env
+        environment:
+            - DB_HOST=db
+            - DB_PORT=5432
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+            - PORT=8080
+        networks:
+            - app-network
+        depends_on:
+            - db
+            - redis
+        restart: always
+        command: 
+            node workers/live.worker.js
+        volumes:
+            - /home/node/app/node_modules
+            - ./server/logs/live:/home/node/app/logs
+    
+    db:
+        image: postgres
+        container_name: db
+        restart: always
+        env_file: .env
+        environment:
+            - POSTGRES_USER=$DB_USER
+            - POSTGRES_PASSWORD=$DB_PASS
+            - POSTGRES_DB=$DB_NAME
+        volumes:
+          - ./server/db/dbinit.sql:/docker-entrypoint-initdb.d/dbinit.sql # DB initialization script
+        networks:
+          - app-network
+
+    redis:
+        image: redis
+        container_name: redis
+        env_file: .env
+        restart: always
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge
