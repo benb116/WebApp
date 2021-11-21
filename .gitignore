@@ -6,3 +6,4 @@ server/.env
 .env
 server/logs/
 **/*.log
+cp.txt

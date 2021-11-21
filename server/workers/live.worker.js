@@ -5,8 +5,18 @@ const http = require('http');
 const express = require('express');
 
 const session = require('../middleware/session');
-
+const { subscriber } = require('../db/redis');
 const logger = require('../utilities/logger');
+
+// All channels that may be used
+const channelMap = require('./live/channels.live');
+
+Object.keys(channelMap).map((c) => subscriber.subscribe(c));
+
+// When a message is received, route to correct channel subscriber
+subscriber.on('message', (channel, message) => {
+  channelMap[channel].sub(message);
+});
 
 // WS server on top of express
 const app = express();
@@ -37,13 +47,13 @@ wss.on('connection', async (ws, request) => {
   // eslint-disable-next-line no-param-reassign
   ws.userID = userID;
 
-  // Can pul params from request url
+  // Can pull params from request url
   // const requestTerms = request.url.split('/');
   // const param = requestTerms[requestTerms.length - 1];
 
   // Can send info from server to a specific ws
-  // const thews = connmap.get(userID);
-  // if (!thews) { connmap.delete(userID); return; }
+  // const thews = liveState.connmap.get(userID);
+  // if (!thews) { liveState.connmap.delete(userID); return; }
   // thews.send(JSON.stringify({ event: 'offerCancelled', offerID }));
 
   ws.on('message', (message) => {
