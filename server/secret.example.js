@@ -1,9 +1,11 @@
 const secret = {
-  DB_USER: 'testuser',
-  DB_PASS: 'testpass',
-  DB_HOST: 'localhost',
-  DB_PORT: 5432,
-  DB_NAME: 'testdb',
+  db: {
+    user: 'user',
+    pass: 'pass',
+    host: 'localhost',
+    port: 1234,
+    name: 'dbName',
+  },
 };
 
 module.exports = secret;
