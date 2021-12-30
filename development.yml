@@ -4,35 +4,38 @@ services:
     # Serve static webpages and proxy to APIs
     # CRA dev server in dev and nginx in production
     webserver:
+        build:
+            target: development # Determine dev or prod
         restart: unless-stopped
         volumes:
             - ./client:/home/node/app
 
     api:
-        command: 
-            ./node_modules/.bin/nodemon workers/api.worker.js # nodemon for restart in debugging
+        command: nodemon --inspect=0.0.0.0:9229 dist/workers/api.worker.js
         restart: unless-stopped
+        ports:
+            - 9229:9229
         volumes:
-            - ./server:/home/node/app
+            - ./server/dist:/home/node/app/dist
     
     live:
-        command: 
-            ./node_modules/.bin/nodemon workers/live.worker.js
+        command: nodemon --inspect=0.0.0.0:9232 dist/workers/live.worker.js
         restart: unless-stopped
+        ports:
+            - 9232:9232
         volumes:
-            - ./server:/home/node/app
+            - ./server/dist:/home/node/app/dist
 
     db: # Postgres with Timescale extension
         ports:
             - 5432:5432 # Expose ports
         restart: unless-stopped
         volumes:
-          - ./server/db/dbpopulate.sql:/docker-entrypoint-initdb.d/dbpopulate.sql # DB initialization script
           - dbdata:/data/db
 
     redis:
-      ports:
-        - 6379:6379 # Expose ports
+        ports:
+            - 6379:6379 # Expose ports
 
 networks:
     app-network:

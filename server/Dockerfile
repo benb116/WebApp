@@ -1,33 +1,21 @@
 # Server Dockerfile
 # Used to build all Node workers
 # Different entrypoints defined in docker compose
-FROM node:16-alpine3.13 AS BUILD_IMAGE
-
+FROM node:16-alpine3.13
+RUN npm install -g nodemon typescript
 # Use non-privileged user and make new folder for files
 USER node 
 RUN mkdir -p /home/node/app/ && chown -R node:node /home/node
 RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 WORKDIR /home/node/app
 
-# nodemon helps for debugging
-# TODO: should we only use nodemon during dev?
-RUN npm install nodemon
-
+ENV PATH /home/node/app/node_modules/.bin:$PATH
 COPY --chown=node:node ./server/package.json ./
 COPY --chown=node:node ./server/package-lock.json ./
-RUN npm install
-ENV PATH /home/node/app/node_modules/.bin:$PATH
-
-# Clear extra cache files
-FROM node:alpine3.13
-
-USER node
-RUN mkdir -p /home/node/app/ && chown -R node:node /home/node
-RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
-WORKDIR /home/node/app
-
-COPY --from=BUILD_IMAGE /home/node/app/ ./
+RUN npm install --production
 
 COPY --chown=node:node ./server ./
+
+RUN tsc; exit 0
 
 ENTRYPOINT []

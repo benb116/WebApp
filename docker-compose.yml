@@ -7,7 +7,7 @@ services:
         build:
             context: .
             dockerfile: ./client/Dockerfile
-            target: ${NODE_ENV} # Determine dev or prod
+            target: production # Determine dev or prod
         container_name: webserver
         restart: always
         ports:
@@ -28,18 +28,13 @@ services:
             dockerfile: ./server/Dockerfile
         container_name: api
         env_file: .env
-        environment:
-            - DB_HOST=db
-            - DB_PORT=5432
-            - REDIS_HOST=redis
-            - REDIS_PORT=6379
         networks:
             - app-network
         depends_on:
             - db
             - redis
         command: 
-            node workers/api.worker.js # nodemon for restart in debugging
+            node dist/workers/api.worker.js # nodemon for restart in debugging
         volumes:
             - /home/node/app/node_modules
             - ./server/logs/api:/home/node/app/logs
@@ -50,12 +45,6 @@ services:
             dockerfile: ./server/Dockerfile
         container_name: live
         env_file: .env
-        environment:
-            - DB_HOST=db
-            - DB_PORT=5432
-            - REDIS_HOST=redis
-            - REDIS_PORT=6379
-            - PORT=8080
         networks:
             - app-network
         depends_on:
@@ -63,7 +52,7 @@ services:
             - redis
         restart: always
         command: 
-            node workers/live.worker.js
+            node dist/workers/live.worker.js
         volumes:
             - /home/node/app/node_modules
             - ./server/logs/live:/home/node/app/logs
