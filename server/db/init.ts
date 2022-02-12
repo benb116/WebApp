@@ -1,12 +1,12 @@
-// Set up the database with proper tables
+// Set up the database with proper tables and NFL data
 
 import logger from '../utilities/logger';
 
-import sequelize from '.';
+import User from '../features/user/user.model';
 
 async function InitDB() {
   logger.info('Initializing the database');
-  await sequelize.sync({ force: true });
+  await User.sync({ force: true });
 }
 
 export default InitDB;

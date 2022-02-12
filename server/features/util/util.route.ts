@@ -5,7 +5,8 @@
 
 import { Request, Response } from 'express';
 
-import { ServiceType, UError } from './util';
+import { uError, isUError } from './util';
+import { ServiceType } from './util.service';
 
 import { client } from '../../db/redis';
 
@@ -25,9 +26,15 @@ function routeHandler(service: ServiceType, cacheExpiry = 0) {
         client.SET(cachekey(req.originalUrl), JSON.stringify(out), { EX: cacheExpiry });
       }
       return res.json(out);
-    } catch (err: any) {
-      const uerr: UError = err;
-      return res.status((uerr.status || 500)).json({ error: uerr.message || 'Unexpected error' });
+    } catch (err) {
+      let outError;
+      if (!isUError(err)) {
+        if (err instanceof Error) outError = uError(err.message);
+        outError = uError('Unknown error');
+      } else {
+        outError = err;
+      }
+      return res.status((outError.status || 500)).json({ error: outError.message || 'Unexpected error' });
     }
   };
 }

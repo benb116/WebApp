@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import WebSocket from 'ws';
 import axios from 'axios';
+import { TestPromiseMap } from '../../features/util/util.tests';
 
 const contestID = 2;
 
@@ -28,26 +29,8 @@ function initWS(cookie: string) {
   });
 }
 
-const tests = ['open1'];
-interface PromiseMap {
-  [key: string]: {
-    prom: Promise<any>
-    res: (value: unknown) => void,
-    rej: (value: unknown) => void,
-    done: boolean
-  }
-}
-const pMap = tests.reduce((acc, cur) => {
-  let pRes: (value: unknown) => void = () => {};
-  let pRej: (value: unknown) => void = () => {};
-  acc[cur] = {
-    prom: new Promise((res, rej) => { pRes = res; pRej = rej; }),
-    res: pRes,
-    rej: pRej,
-    done: false,
-  };
-  return acc;
-}, {} as PromiseMap);
+const tests = ['init', 'open1'];
+const pMap = TestPromiseMap(tests);
 
 async function initUsers() {
   const session1 = await getSessionID('email1@gmail.com');
@@ -64,12 +47,16 @@ async function initUsers() {
         break;
     }
   });
-  console.log('ready');
+  pMap.init.res(true);
 }
 
 beforeAll(() => initUsers().catch(console.error));
 
 describe('Live server tests', () => {
+  test('Initialization', () => pMap.init.prom.then((data) => {
+    expect(data).toEqual(true);
+  }));
+
   test('Open WS connection', () => pMap.open1.prom.then((data) => {
     expect(data).toBe(true);
   }));
