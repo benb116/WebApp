@@ -19,10 +19,10 @@ services:
             - ./server/dist:/home/node/app/dist
     
     live:
-        command: nodemon --inspect=0.0.0.0:9232 dist/workers/live.worker.js
+        command: nodemon --inspect=0.0.0.0:9230 dist/workers/live.worker.js
         restart: unless-stopped
         ports:
-            - 9232:9232
+            - 9230:9230
         volumes:
             - ./server/dist:/home/node/app/dist
 

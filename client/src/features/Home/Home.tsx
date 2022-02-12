@@ -1,33 +1,31 @@
 import React, { useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import {
-  getAccount, isLoggedInSelector, logoutUser, userSelector,
-} from '../User/UserSlice';
+import { Link, useHistory } from 'react-router-dom';
+
+import { useAppSelector, useAppDispatch } from '../../app/hooks';
+
+import { useGetAccountQuery, useLogoutMutation } from '../../helpers/api';
+import { isLoggedInSelector, userSelector } from '../User/User.slice';
 
 const Home = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const history = useHistory();
 
-  const { email } = useSelector(userSelector);
-  const isLoggedIn = useSelector(isLoggedInSelector);
+  const { email } = useAppSelector(userSelector);
+  const isLoggedIn = useAppSelector(isLoggedInSelector); // Use localstorage to know if logged in
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      dispatch(getAccount());
-    }
-  }, [dispatch, isLoggedIn]);
+  const [logout] = useLogoutMutation();
 
   const loginRed = () => {
-    localStorage.setItem('isLoggedIn', false);
+    localStorage.setItem('isLoggedIn', 'false');
     history.push('/login');
     // In theory people can see this webpage as a landing if they aren't logged in
   };
 
-  const onLogOut = () => {
-    dispatch(logoutUser());
-    loginRed();
-  };
+  useEffect(() => {
+    if (!isLoggedIn) loginRed();
+  }, [dispatch, isLoggedIn, email]);
+
+  useGetAccountQuery();
 
   return (
     <div className="container mx-auto">
@@ -40,7 +38,7 @@ const Home = () => {
               <h3>{email}</h3>
             </div>
             <button
-              onClick={onLogOut}
+              onClick={() => { logout(); }}
               className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
               type="button"
             >

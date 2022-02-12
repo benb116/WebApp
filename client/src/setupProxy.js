@@ -4,7 +4,7 @@ const createProxyMiddleware = require('http-proxy-middleware');
 module.exports = function setup(app) {
   app.use(
     createProxyMiddleware(
-      '/live', {
+      '/ballstreetlive', {
         target: 'ws://live:8080',
         changeOrigin: true,
         ws: true,
