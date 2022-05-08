@@ -1,18 +1,23 @@
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
 
 import './App.css';
 
+import { useAppSelector } from './app/hooks';
+import { isLoggedInSelector } from './features/User/User.slice';
+
 import Home from './features/Home/Home';
-import About from './features/About/About';
 import Login from './features/User/Login';
 import Signup from './features/User/Signup';
 import Forgot from './features/User/Forgot';
 import Verified from './features/Home/Verified';
 import Reset from './features/User/Reset';
 import Account from './features/User/Account';
-
-import PrivateRoute from './helpers/PrivateRoute';
 
 function App() {
   return (
@@ -27,20 +32,28 @@ function App() {
         right: 0,
       }}
     >
-      <Router>
-        <Switch>
-          <Route exact component={Home} path="/" />
-          <Route exact component={About} path="/about" />
-          <Route exact component={Login} path="/login" />
-          <Route exact component={Signup} path="/signup" />
-          <Route exact component={Forgot} path="/forgot" />
-          <Route exact component={Verified} path="/verified" />
-          <Route exact component={Reset} path="/resetPassword/:token" />
-          <PrivateRoute exact component={Account} path="/account" />
-        </Switch>
-      </Router>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot" element={<Forgot />} />
+          <Route path="/verified" element={<Verified />} />
+          <Route path="/resetPassword/:token" element={<Reset />} />
+          <Route path="/account" element={<RequireAuth><Account /></RequireAuth>} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
 
+interface Props {
+  children: JSX.Element,
+}
+
+function RequireAuth(props: Props) {
+  const { children } = props;
+  const isLoggedIn = useAppSelector(isLoggedInSelector);
+  return isLoggedIn ? children : <Navigate to="/login" />;
+}
 export default App;

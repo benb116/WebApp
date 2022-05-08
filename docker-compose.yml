@@ -8,6 +8,7 @@ services:
             context: .
             dockerfile: ./client/Dockerfile
             target: production # Determine dev or prod
+        image: ${DOCKERHUB_USERNAME}/webapp:client
         container_name: webserver
         restart: always
         ports:
@@ -19,6 +20,7 @@ services:
             - api
             - live
         volumes:
+            - ./nginx-conf/nginx.conf:/etc/nginx/conf.d/nginx.conf
             - /etc/letsencrypt:/etc/letsencrypt # ssl certs
             - /home/node/app/node_modules
 
@@ -26,6 +28,7 @@ services:
         build:
             context: .
             dockerfile: ./server/Dockerfile
+        image: ${DOCKERHUB_USERNAME}/webapp:server
         container_name: api
         env_file: .env
         networks:
@@ -43,6 +46,7 @@ services:
         build:
             context: .
             dockerfile: ./server/Dockerfile
+        image: ${DOCKERHUB_USERNAME}/webapp:server
         container_name: live
         env_file: .env
         networks:
@@ -67,9 +71,9 @@ services:
             - POSTGRES_PASSWORD=$DB_PASS
             - POSTGRES_DB=$DB_NAME
         volumes:
-          - ./server/db/dbinit.sql:/docker-entrypoint-initdb.d/dbinit.sql # DB initialization script
+            - ./server/db/dbinit.sql:/docker-entrypoint-initdb.d/dbinit.sql # DB initialization script
         networks:
-          - app-network
+            - app-network
 
     redis:
         image: redis

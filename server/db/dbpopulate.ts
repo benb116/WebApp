@@ -1,7 +1,7 @@
 // Set up example DB records for use in testing
 import logger from '../utilities/logger';
 
-import User, { UserCreateType } from '../features/user/user.model';
+import User from '../features/user/user.model';
 
 async function PopulateDB() {
   logger.info('Populating DB with initial data');
@@ -16,7 +16,7 @@ async function PopulateDB() {
     'email6@gmail.com',
   ];
   // hash is password1
-  const userRecords: UserCreateType[] = usrs.map((u) => ({
+  const userRecords = usrs.map((u) => ({
     email: u,
     pwHash: '$2b$10$v3qgumBibz8Uouevm5xeTOFWheNtLVRyLeGqp2tZbfdMJ.iHQtgVq',
     name: 'bot',

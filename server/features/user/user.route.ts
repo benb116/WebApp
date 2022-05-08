@@ -12,6 +12,7 @@ import getAccount from './services/getAccount.service';
 import evalVerify from './services/evalVerify.service';
 import genPassReset from './services/genPassReset.service';
 import evalPassReset from './services/evalPassReset.service';
+import forceLogout from './services/forceLogout.service';
 
 const router = express.Router();
 
@@ -121,5 +122,6 @@ router.delete('/logout', authenticate, (req, res) => {
     res.send({ result: 'OK', message: 'Session destroyed' });
   });
 });
+router.delete('/forcelogout', authenticate, routeHandler(forceLogout));
 
 export default router;

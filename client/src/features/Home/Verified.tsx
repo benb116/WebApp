@@ -1,21 +1,16 @@
-import React, { useEffect } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-const Home = () => {
-  const history = useHistory();
-
-  useEffect(() => {
-    localStorage.setItem('isLoggedIn', 'true');
-    history.push('/');
-  }, [history]);
-
-  return (
-    <div className="container mx-auto">
-      Your account has been verified! You are being redirected
-      <Link to="/"> home</Link>
-      .
+const Verified = () => (
+  <>
+    <div style={{ marginTop: '10em' }}>
+      <h2>Your account has been verified!</h2>
+      <p>
+        You are being redirected
+        <Link className="AppLink" to="/"> Home</Link>
+      </p>
     </div>
-  );
-};
+  </>
+);
 
-export default Home;
+export default Verified;

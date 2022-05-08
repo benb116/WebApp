@@ -1,19 +1,20 @@
-import { DataTypes, ModelDefined, Optional } from 'sequelize';
+/* eslint-disable @typescript-eslint/lines-between-class-members */
+import {
+  Model, InferAttributes, InferCreationAttributes, CreationOptional, DataTypes,
+} from 'sequelize';
 import sequelize from '../../db';
 
-export interface UserType {
-  id: number,
-  email: string,
-  verified: boolean,
-  name: string,
-  pwHash?: string,
+class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+  declare id: CreationOptional<number>;
+  declare email: string;
+  declare verified: boolean;
+  declare name: string;
+  declare pwHash: string;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
-export type UserTypePWHash = Required<UserType>;
-
-export type UserCreateType = Optional<UserTypePWHash, 'id'>;
-
-const User: ModelDefined<UserType, UserCreateType> = sequelize.define('User', {
+User.init({
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -39,7 +40,11 @@ const User: ModelDefined<UserType, UserCreateType> = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  createdAt: DataTypes.DATE,
+  updatedAt: DataTypes.DATE,
 }, {
+  sequelize,
+  // TBD scopes?
   defaultScope: {
     attributes: { exclude: ['pwHash'] },
   },

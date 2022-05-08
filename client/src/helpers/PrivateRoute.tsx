@@ -1,13 +1,20 @@
 import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Navigate } from 'react-router-dom';
+import { userSelector } from '../features/User/User.slice';
 
-const PrivateRoute = ({ component, ...rest }: any) => {
-  const routeComponent = (props: any) => (
-    (localStorage.getItem('isLoggedIn') === 'true')
-      ? React.createElement(component, props)
-      : <Redirect to={{ pathname: '/login' }} />
-  );
-  return <Route {...rest} render={routeComponent} />;
+interface Props {
+  component: React.ComponentType
+}
+
+const PrivateRoute: React.FC<Props> = ({ component: RouteComponent }) => {
+  const user = useSelector(userSelector);
+
+  if (user.id) {
+    return <RouteComponent />;
+  }
+
+  return <Navigate to="/" />;
 };
 
 export default PrivateRoute;

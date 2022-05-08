@@ -2,7 +2,7 @@ import service from '../services/signup.service';
 import { ErrorTest, ObjectTest } from '../../util/util.tests';
 
 describe('signup service', () => {
-  test('Valid request returns data', ObjectTest(
+  test('Valid request returns data without verification', ObjectTest(
     service, {
       name: 'Ben', email: '123@gmail.com', password: 'password1', skipVerification: true,
     },
@@ -16,7 +16,7 @@ describe('signup service', () => {
     service, {
       name: 'Ben', email: '1234@gmail.com', password: 'password1', skipVerification: false,
     },
-    { needsVerification: true },
+    { needsVerification: true, id: 8 },
     'DELETE from "Users" WHERE "id"=8',
   ));
 

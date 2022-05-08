@@ -9,4 +9,4 @@ async function InitDB() {
   await User.sync({ force: true });
 }
 
-export default InitDB;
+InitDB();

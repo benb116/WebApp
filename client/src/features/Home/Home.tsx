@@ -1,62 +1,38 @@
-import React, { useEffect } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import React from 'react';
+import { Link, Navigate } from 'react-router-dom';
 
-import { useAppSelector, useAppDispatch } from '../../app/hooks';
+import { useAppSelector } from '../../app/hooks';
 
-import { useGetAccountQuery, useLogoutMutation } from '../../helpers/api';
-import { isLoggedInSelector, userSelector } from '../User/User.slice';
+import { useGetAccountQuery, useLogoutMutation } from '../User/User.api';
+import { userSelector } from '../User/User.slice';
 
 const Home = () => {
-  const dispatch = useAppDispatch();
-  const history = useHistory();
-
-  const { email } = useAppSelector(userSelector);
-  const isLoggedIn = useAppSelector(isLoggedInSelector); // Use localstorage to know if logged in
+  const { id, name } = useAppSelector(userSelector);
 
   const [logout] = useLogoutMutation();
-
-  const loginRed = () => {
-    localStorage.setItem('isLoggedIn', 'false');
-    history.push('/login');
-    // In theory people can see this webpage as a landing if they aren't logged in
-  };
-
-  useEffect(() => {
-    if (!isLoggedIn) loginRed();
-  }, [dispatch, isLoggedIn, email]);
 
   useGetAccountQuery();
 
   return (
-    <div className="container mx-auto">
-      {isLoggedIn
+    <div>
+      {id
         ? (
           <>
-            <div className="container mx-auto">
-              Welcome back
-              {' '}
-              <h3>{email}</h3>
+            <div style={{ marginTop: '10em' }}>
+              <h2>
+                Welcome back,
+                {' '}
+                {name}
+              </h2>
             </div>
-            <button
-              onClick={() => { logout(); }}
-              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-              type="button"
-            >
+            <Link className="AppLink" to="/account">Account</Link>
+            <button onClick={() => { logout(); }} className="AppButton" type="button">
               Log Out
             </button>
           </>
         )
         : (
-          <>
-            <h3>WebApp</h3>
-            <button
-              onClick={loginRed}
-              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-              type="button"
-            >
-              Log In
-            </button>
-          </>
+          <Navigate to="/login" />
         )}
     </div>
   );

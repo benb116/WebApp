@@ -1,13 +1,5 @@
 import { Schema } from 'joi';
-import { Model, Transaction } from 'sequelize';
-
-// Clean up the raw response from the database
-export const dv = function dv(input: Model | Model[] | null) : any | any[] | null {
-  if (input === null) { return input; }
-  if (input instanceof Model) { return input.toJSON(); }
-  if (input.length) { return input.map(dv); }
-  return input;
-};
+import { Transaction } from 'sequelize';
 
 // Transaction object to cause SELECT ... FOR UPDATE
 export const tobj = function tobj(t: Transaction) {

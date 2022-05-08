@@ -1,33 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 
 import { useAppSelector } from '../../app/hooks';
 
-import { useLogoutMutation } from '../../helpers/api';
+import {
+  useForcelogoutMutation,
+  useGetAccountQuery,
+} from './User.api';
 import { userSelector } from './User.slice';
 
 const Account = () => {
-  const { email } = useAppSelector(userSelector);
+  const [forcelogout] = useForcelogoutMutation();
 
-  const [logout] = useLogoutMutation();
+  useGetAccountQuery();
 
   return (
-    <div className="container mx-auto">
-      <>
-        <div className="container mx-auto">
-          Welcome back
-          {' '}
-          <h3>{email}</h3>
-        </div>
+    <>
+      <div style={{ marginTop: '10em' }}>
+        <h2>Account details</h2>
+      </div>
 
-        <button
-          onClick={() => { logout(); }}
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-          type="submit"
-        >
-          Log Out
-        </button>
-      </>
-    </div>
+      <button
+        className="SmallButton"
+        type="button"
+        onClick={() => { forcelogout(); }}
+        style={{
+          display: 'block',
+          margin: '0 auto',
+        }}
+      >
+        Force logout this user
+      </button>
+
+      <Link className="AppLink" to="/">Home</Link>
+
+    </>
   );
 };
 
